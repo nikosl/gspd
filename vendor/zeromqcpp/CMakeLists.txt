@@ -11,7 +11,7 @@ include(ExternalProject)
 
 ExternalProject_Add(zeromqcpp
     GIT_REPOSITORY "https://github.com/zeromq/cppzmq.git"
-    GIT_TAG "master"
+    GIT_TAG "v4.4.1"
     BUILD_IN_SOURCE 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""

@@ -12,7 +12,7 @@ include(ExternalProject)
 SET(CXX "clang++ -stdlib=c++11")
 
 ExternalProject_Add(zeromq
-    URL "https://github.com/zeromq/zeromq4-1/releases/download/v4.1.5/zeromq-4.1.5.tar.gz"
+    URL "https://github.com/zeromq/libzmq/releases/download/v4.3.1/zeromq-4.3.1.tar.gz"
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}
     BUILD_IN_SOURCE 1
     UPDATE_COMMAND ""
