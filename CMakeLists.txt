@@ -19,7 +19,9 @@ include_directories(${MSGPACKC_INCLUDE_DIRS})
 link_directories(${ZEROMQ_LINK_DIRS})
 
 set(GSPD_LIBRARY_DEPENDENCIES
-        zmq
-        )
+        pthread
+        zmq)
+
 add_executable(gspd src/app.cpp)
+add_dependencies(gspd msgpackc libzmq cppzmq)
 target_link_libraries(gspd -static ${GSPD_LIBRARY_DEPENDENCIES})
