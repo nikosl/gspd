@@ -1,14 +1,12 @@
-//
-// Created by nikos on 28/9/19.
-//
+#pragma once
 
-#ifndef GSPD_GOSSIP_H
-#define GSPD_GOSSIP_H
+namespace gossip {
+    class Peer {
 
+    };
 
-class gossip {
+    class Members {
 
-};
+    };
+} //end gossip
 
-
-#endif //GSPD_GOSSIP_H
