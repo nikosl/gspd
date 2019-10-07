@@ -1,10 +1,13 @@
 cmake_minimum_required(VERSION 3.0)
-project(gossip-gspd)
+project(gspd)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=libc++11")
 
 set(ZeroMQ_DIR ${CMAKE_CURRENT_BINARY_DIR}/vendor/libzmq)
-
+set(ZMQ_BUILD_TESTS OFF)
+set(CPPZMQ_BUILD_TESTS OFF)
 add_subdirectory(vendor/libzmq)
 add_subdirectory(vendor/cppzmq)
 add_subdirectory(vendor/Catch2)
