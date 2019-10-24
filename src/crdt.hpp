@@ -9,5 +9,5 @@ namespace crdt {
 
     };
 
-} //crdt
+} // namespace crdt
 
