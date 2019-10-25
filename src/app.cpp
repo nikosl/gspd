@@ -3,25 +3,41 @@
 #include <msgpack.hpp>
 #include <iostream>
 #include <vector>
+#include <thread>
+#include "Config.hpp"
+#include "gossip.hpp"
 
 int main() {
-    zmq::context_t ctx;
-    zmq::socket_t sock(ctx, zmq::socket_type::push);
-    sock.bind("inproc://test");
-    sock.send(zmq::str_buffer("Hello, world"), zmq::send_flags::dontwait);
-    std::vector<std::string> vec;
-    vec.emplace_back("Hello");
-    vec.emplace_back("MessagePack");
+  gossip::Config config{};
 
-    // serialize it into simple buffer.
-    msgpack::sbuffer sbuf;
-    msgpack::pack(sbuf, vec);
+  if (!config.init()) {
+    return 1;
+  }
 
-    // deserialize it.
-    msgpack::object_handle oh =
-            msgpack::unpack(sbuf.data(), sbuf.size());
+  auto me = gossip::Peer{config.get_my_id(), config.get_my_address()};
+  auto seeds = config.get_seeds();
+  auto members = gossip::Members{};
 
-    // print the deserialized object.
-    msgpack::object obj = oh.get();
-    std::cout << obj << std::endl;  //=> ["Hello", "MessagePack"]
+  for (auto p : seeds) {
+    const auto&[id, addr] = p;
+    auto n = gossip::Peer{id, addr};
+    members.add_peer(n);
+  }
+
+  std::thread listener(
+      [config] {
+        while (true) {
+
+        }
+      }
+  );
+
+  std::thread sender([config] {
+    while (true) {
+
+    }
+  });
+
+  listener.join();
+  sender.join();
 }

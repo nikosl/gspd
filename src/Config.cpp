@@ -14,6 +14,18 @@ bool Config::init() {
   return ok;
 }
 
+std::string Config::get_my_id(){
+    return my_id_;
+}
+
+std::string Config::get_my_address(){
+    return address_;
+}
+
+Config::peers_t Config::get_seeds(){
+    return seeds_;
+}
+
 bool Config::_set_my_id() {
   auto[val, ok] = _get_env(MY_ID);
   my_id_ = val;

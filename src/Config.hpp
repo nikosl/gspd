@@ -8,16 +8,20 @@
 namespace gossip {
 
 class Config {
-  enum class peerz {
-    ID,
-    ADDRESS,
-  };
-  using peers_t = std::vector<std::tuple<std::string_view, std::string_view>>;
+  using peers_t = std::vector <std::tuple<std::string, std::string>>;
 
 public:
   Config();
   ~Config();
-  bool init();
+  enum class peerz {
+    ID,
+    ADDRESS,
+  };
+  [[nodiscard]] bool init();
+  std::string get_my_id();
+  std::string get_my_address();
+  peers_t get_seeds();
+
 private:
   std::string my_id_;
   std::string address_;
@@ -31,6 +35,6 @@ private:
   const char *const MY_ID = "MY_ID";
   const char *const MY_ADDRESS = "ADDRESS";
   const char *const SEEDS = "SEEDS";
-  std::vector<std::string_view> split_(std::string_view t_str, std::string_view t_delims);
+  std::vector <std::string_view> split_(std::string_view t_str, std::string_view t_delims);
 };
 } // namespace gossip
