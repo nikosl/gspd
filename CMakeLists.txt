@@ -32,7 +32,8 @@ add_executable(tests tests/testsMain.cpp tests/testsMembers.cpp src/gossip.cpp
         tests/testsConcurentQueue.cpp
         tests/testsConfig.cpp src/Config.cpp
         tests/testsClient.cpp src/Client.cpp
-        src/Listener.cpp)
+        src/Listener.cpp
+        tests/testsCRDT.cpp src/crdt.cpp)
 target_link_libraries(tests boost_thread boost_system pthread Catch2::Catch2)
 
 include(CTest)
