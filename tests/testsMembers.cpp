@@ -24,7 +24,7 @@ TEST_CASE("Members should be handled by gossip", "[members]") {
     peer.inc_heartbeat();
     peer.inc_heartbeat();
     members.heartbeat(peer);
-    REQUIRE(peer.get_heartbeat()==2);
+    REQUIRE(peer.get_heartbeat()==3);
   }
 
   SECTION("Receive new peer") {
@@ -55,7 +55,7 @@ TEST_CASE("Members should be handled by gossip", "[members]") {
     peer2.inc_heartbeat();
     members.heartbeat(peer);
     members.heartbeat(peer2);
-    REQUIRE(peer.get_heartbeat()==1);
+    REQUIRE(peer.get_heartbeat()==2);
   }
 
   SECTION("Move to dead after timeout") {

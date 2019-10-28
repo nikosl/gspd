@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <sstream>
 #include "Config.hpp"
 
 namespace gossip {
@@ -14,21 +15,23 @@ bool Config::init() {
   return ok;
 }
 
-std::string Config::get_my_id(){
-    return my_id_;
+std::string Config::get_my_id() const {
+  return my_id_;
 }
 
-std::string Config::get_my_address(){
-    return address_;
+std::string Config::get_my_address() const {
+  return address_;
 }
 
-Config::peers_t Config::get_seeds(){
-    return seeds_;
+Config::peers_t Config::get_seeds() const {
+  return seeds_;
 }
 
 bool Config::_set_my_id() {
   auto[val, ok] = _get_env(MY_ID);
-  my_id_ = val;
+  if(ok) {
+    my_id_ = std::move(val);
+  }
   return ok;
 }
 
@@ -41,45 +44,34 @@ bool Config::_set_address() {
 bool Config::_set_seeds() {
   auto[val, ok] = _get_env(SEEDS);
   if (ok) {
-    auto pl = split_(val, ",");
-    for (auto p: pl) {
-      auto pair = split_(p, "=");
+    auto pl = split(val, ',');
+    for (const auto &p: pl) {
+      auto pair = split(p, '=');
       seeds_.emplace_back(std::make_tuple(pair[0], pair[1]));
     }
   }
   return ok;
 }
 
-std::tuple<std::string, bool> Config::_get_env(const char *t_key) {
+std::tuple<std::string, bool> Config::_get_env(const std::string &t_key) {
   auto ok = false;
-  auto val = "";
-  if (auto env_p = std::getenv(t_key)) {
+  std::string val;
+  char *env_p{nullptr};
+  env_p = std::getenv(t_key.c_str());
+  if (env_p!=nullptr) {
     val = env_p;
     ok = true;
   }
   return std::make_tuple(val, ok);
 }
 
-std::vector<std::string_view> Config::split_(std::string_view t_str, std::string_view t_delims = ",") {
-  std::vector<std::string_view> output;
-  auto first = t_str.begin();
-  while (first!=t_str.end()) {
-    const auto second = std::find_first_of(first,
-                                           std::cend(t_str),
-                                           std::cbegin(t_delims),
-                                           std::cend(t_delims));
-    if (first!=second) {
-      output.emplace_back(t_str.substr(
-          std::distance(t_str.begin(), first),
-          std::distance(first, second))
-      );
-    }
-
-    if (second==t_str.end())
-      break;
-
-    first = std::next(second);
+std::vector<std::string> Config::split(const std::string &s, char delimiter) {
+  std::vector<std::string> tokens;
+  std::string token;
+  std::istringstream tokenStream{s};
+  while (std::getline(tokenStream, token, delimiter)) {
+    tokens.push_back(token);
   }
-  return output;
+  return tokens;
 }
 } // namespace gossip

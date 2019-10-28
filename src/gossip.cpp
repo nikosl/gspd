@@ -46,9 +46,9 @@ bool operator!=(const Peer &lhs, const Peer &rhs) {
   return !(lhs==rhs);
 }
 
-void Peer::update_timestamp() {
+void Peer::update_timestamp(int tround) {
   std::lock_guard<std::mutex> lock(g_i_mutex);
-  m_timestamp_ = std::chrono::steady_clock::now();
+  m_timestamp_ = std::chrono::steady_clock::now() + std::chrono::milliseconds(tround);
 }
 
 std::chrono::time_point<std::chrono::steady_clock> Peer::get_timestamp() const {
@@ -78,23 +78,11 @@ Peer::Peer(Peer const &other) {
 }
 
 std::ostream &operator<<(std::ostream &strm, const Peer &peer) {
-  return strm << "Peer{ id: " << peer.id_
-              << ", address: " << peer.address_
-              << ", heartbeat: " << peer.heartbeat_
+  return strm << R"("peer":{ "id": )" << peer.id_
+              << R"(, "address": )" << "\"" << peer.address_ << "\""
+              << R"(, "heartbeat": )" << peer.heartbeat_
               << "}";
 }
-//void swap(Peer &lhs, Peer &rhs) {
-//  std::unique_lock<std::mutex> lock_a(lhs.g_i_mutex, std::defer_lock);
-//  std::unique_lock<std::mutex> lock_b(rhs.g_i_mutex, std::defer_lock);
-//  std::lock(lock_a, lock_b);
-//  using std::swap;
-////swap actions
-//  swap(lhs.id_, rhs.id_);
-//  swap(lhs.address_, rhs.address_);
-//  swap(lhs.heartbeat_, rhs.heartbeat_);
-//  swap(lhs.m_timestamp_, rhs.m_timestamp_);
-//}
-
 
 Members::Members() = default;
 
@@ -119,7 +107,7 @@ void Members::deadline(const std::string &id) {
   if (members_->is_alive(id)) {
     spdlog::info("Suspected peer: {}", *members_->get_peer(id));
     auto peer = members_->get_peer(id);
-    peer->update_timestamp();
+    peer->update_timestamp(tround_);
     members_->to_suspected(id);
   }
 }
@@ -136,20 +124,20 @@ void Members::heartbeat(Peer &peer) {
   if (members_->is_alive(id)) {
     auto peer_existing = members_->get_peer(id);
     if (*peer_existing < peer) {
-      peer_existing->update_timestamp();
+      peer_existing->update_timestamp(tround_);
       peer_existing->heartbeat(peer.get_heartbeat());
     }
   } else if (members_->is_dead(id)) {
     auto peer_existing = members_->get_suspect(id);
     if (*peer_existing < peer) {
       spdlog::info("Heard from suspected peer: {}", peer);
-      peer_existing->update_timestamp();
+      peer_existing->update_timestamp(tround_);
       peer_existing->heartbeat(peer.get_heartbeat());
       members_->to_alive(id);
     }
   } else {
     spdlog::info("New peer found: {}", peer);
-    peer.update_timestamp();
+    peer.update_timestamp(tround_);
     members_->add_peer(peer);
   }
 }
@@ -253,6 +241,8 @@ void Members::cleanup_task() {
   }
 
   for (auto &p:members_->get_alive_peers()) {
+    if (p.get_id()==me_)
+      continue;
     auto ts = p.get_timestamp() + std::chrono::milliseconds(tfail_);
     auto now = std::chrono::steady_clock::now();
     if (ts < now) {
@@ -265,7 +255,7 @@ void Members::start_cleanup() {
   cleanup_is_running.store(true);
   t_ = std::make_unique<std::thread>([this]() {
     while (cleanup_is_running.load()) {
-      std::this_thread::sleep_until(std::chrono::steady_clock::now() + std::chrono::milliseconds(10));
+      std::this_thread::sleep_until(std::chrono::steady_clock::now() + std::chrono::milliseconds(50));
       cleanup_task();
     }
   });
@@ -293,18 +283,18 @@ std::vector<Peer> Members::get_random_peers(unsigned int k) const {
   std::random_device rd;
   auto gen = std::mt19937(rd());
 
-  auto c = a.size();
+  auto c = a.size() - 1;
   auto x = k;
-  if (k > a.size()) {
-    x = a.size();
+  if (k > c) {
+    x = c;
   }
 
   for (auto i = x; i > 0; --i) {
     std::uniform_int_distribution<int> d(0, c);
     auto n = a[d(gen)];
-    if (n.get_id()!=me_)
-      p.push_back(n);
-    c--;
+    if (n.get_id()==me_)
+      continue;
+    p.push_back(n);
   }
   return p;
 }
@@ -314,12 +304,14 @@ std::vector<Peer> Members::get_alive_peers() const {
 }
 
 void Members::add_peer(Peer &peer) {
+  peer.update_timestamp(tround_);
   members_->add_peer(peer);
 }
 
 bool Members::is_dead(const std::string &id) const {
   return members_->is_dead(id);
 }
+
 bool Members::is_alive(const std::string &id) const {
   return members_->is_alive(id);
 }
@@ -332,6 +324,18 @@ std::string_view Members::get_me() {
 }
 void Members::to_suspected(const std::string &id) {
   members_->to_suspected(id);
+}
+
+std::shared_ptr<Peer> Members::get_peer(const std::string &id) {
+  return members_->get_peer(id);
+}
+
+int Members::get_tround() const {
+  return tround_;
+}
+
+void Members::set_tround(int Tround) {
+  tround_ = Tround;
 }
 
 } // namespace gossip

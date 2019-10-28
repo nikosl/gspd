@@ -136,7 +136,7 @@ private:
   std::string id_;
   std::string address_;
   std::chrono::time_point<std::chrono::steady_clock> m_timestamp_;
-  unsigned int heartbeat_ = 0;
+  unsigned int heartbeat_ = 1;
   mutable std::mutex g_i_mutex;
 
 public:
@@ -151,7 +151,7 @@ public:
   unsigned int get_heartbeat() const;
   void heartbeat(unsigned int i);
   void inc_heartbeat();
-  void update_timestamp();
+  void update_timestamp(int tround);
 
   std::chrono::time_point<std::chrono::steady_clock> get_timestamp() const;
   friend bool operator>(const Peer &lhs, const Peer &rhs);
@@ -161,7 +161,7 @@ public:
   //friend void swap(Peer &lhs, Peer &rhs);
 
   friend std::ostream &operator<<(std::ostream &, const Peer &);
-  MSGPACK_DEFINE_MAP(id_, address_, heartbeat_);
+  MSGPACK_DEFINE (id_, address_, heartbeat_);
 };
 
 class MembersTable {
@@ -197,11 +197,11 @@ private:
 
   int tfail_ = 150;
   int tcleanup_ = tfail_*2;
-
+  int tround_ = 150;
 public:
   Members();
-
   ~Members();
+
   void heartbeat(Peer &peer);
   void add_peer(Peer &peer);
   [[nodiscard]] std::vector<Peer> get_alive_peers() const;
@@ -210,6 +210,8 @@ public:
   void cleanup(const std::string &id);
   void set_tfail(int t);
   void set_tclean(int t);
+  int get_tround() const;
+  void set_tround(int Tround);
   [[nodiscard]] int size() const;
   void gossip();
   void cleanup_task();
@@ -220,5 +222,6 @@ public:
   void set_me(std::string_view t_me);
   std::string_view get_me();
   void to_suspected(const std::string &id);
+  std::shared_ptr<Peer> get_peer(const std::string &id);
 };
 } // namespace gossip
