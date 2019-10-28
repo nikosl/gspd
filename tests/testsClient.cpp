@@ -15,10 +15,8 @@ TEST_CASE("Send a peer message to listener", "[client]"){
     auto sockfd = server.create_connection("127.0.0.1", "5001");
     char buf[1024];
     started.store(true);
-    server.listen_gossip(sockfd, buf, 1024, 0);
-    std::stringstream sss;
-    sss << buf;
-    auto smsg = server.deserialize(sss, sss.str().length());
+    auto s = server.listen_gossip(sockfd, buf, 1024, 0);
+    auto smsg = server.deserialize(buf, s);
     std::unique_lock<std::mutex> lock(m_);
     actual = smsg;
     is_set.store(true);

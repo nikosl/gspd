@@ -303,6 +303,10 @@ std::vector<Peer> Members::get_alive_peers() const {
   return members_->get_alive_peers();
 }
 
+std::vector<Peer> Members::get_suspected_peers() const {
+  return members_->get_suspected_peers();
+}
+
 void Members::add_peer(Peer &peer) {
   peer.update_timestamp(tround_);
   members_->add_peer(peer);

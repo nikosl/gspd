@@ -162,6 +162,20 @@ public:
 
   friend std::ostream &operator<<(std::ostream &, const Peer &);
   MSGPACK_DEFINE (id_, address_, heartbeat_);
+
+  template <typename Writer>
+  void Serialize(Writer& writer) const {
+    writer.StartObject();
+    writer.String("id");
+    writer.String(id_.c_str());
+
+    writer.String("address");
+    writer.String(address_.c_str());
+
+    writer.String("heartbeat");
+    writer.Uint(heartbeat_);
+    writer.EndObject();
+  }
 };
 
 class MembersTable {
@@ -204,15 +218,16 @@ public:
 
   void heartbeat(Peer &peer);
   void add_peer(Peer &peer);
-  [[nodiscard]] std::vector<Peer> get_alive_peers() const;
-  [[nodiscard]] std::vector<Peer> get_random_peers(unsigned int k) const;
+  std::vector<Peer> get_alive_peers() const;
+  std::vector<Peer> get_suspected_peers() const;
+  std::vector<Peer> get_random_peers(unsigned int k) const;
   void deadline(const std::string &id);
   void cleanup(const std::string &id);
   void set_tfail(int t);
   void set_tclean(int t);
   int get_tround() const;
   void set_tround(int Tround);
-  [[nodiscard]] int size() const;
+  int size() const;
   void gossip();
   void cleanup_task();
   void start_cleanup();

@@ -11,17 +11,20 @@ include_directories(src)
 include_directories(include)
 
 include_directories(vendor/msgpack-c/include)
+include_directories(vendor/crow/amalgamate)
+include_directories(vendor/rapidjson/include)
 
-if(NOT TARGET spdlog)
+if (NOT TARGET spdlog)
     # Stand-alone build
     find_package(spdlog REQUIRED)
-endif()
+endif ()
 
 add_executable(gspd src/app.cpp src/gossip.cpp src/gossip.hpp include/SimpleTimer.hpp
         include/ConcurentQueue.hpp src/Config.cpp src/Config.hpp
         src/Client.cpp src/Client.hpp
-        src/Listener.cpp src/Listener.hpp)
-target_link_libraries(gspd spdlog::spdlog_header_only)
+        src/Listener.cpp src/Listener.hpp
+        src/crdt.cpp src/crdt.hpp)
+target_link_libraries(gspd boost_thread boost_system pthread spdlog::spdlog_header_only)
 
 find_package(Catch2 REQUIRED)
 add_executable(tests tests/testsMain.cpp tests/testsMembers.cpp src/gossip.cpp
@@ -30,7 +33,7 @@ add_executable(tests tests/testsMain.cpp tests/testsMembers.cpp src/gossip.cpp
         tests/testsConfig.cpp src/Config.cpp
         tests/testsClient.cpp src/Client.cpp
         src/Listener.cpp)
-target_link_libraries(tests Catch2::Catch2 pthread)
+target_link_libraries(tests boost_thread boost_system pthread Catch2::Catch2)
 
 include(CTest)
 include(Catch)
