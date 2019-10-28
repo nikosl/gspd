@@ -13,3 +13,6 @@
 [submodule "vendor/spdlog"]
 	path = vendor/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "vendor/crow"]
+	path = vendor/crow
+	url = https://github.com/ipkn/crow.git
