@@ -9,7 +9,7 @@
 namespace gossip {
 
 Peer::Peer(std::string peer_id, std::string peer_address)
-    : id_(std::move(peer_id)), address_(std::move(peer_address)) {};
+    : id_(std::move(peer_id)), address_(std::move(peer_address)) {}
 
 std::string Peer::get_address() const { return address_; }
 

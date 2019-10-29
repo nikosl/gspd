@@ -161,7 +161,7 @@ public:
   //friend void swap(Peer &lhs, Peer &rhs);
 
   friend std::ostream &operator<<(std::ostream &, const Peer &);
-  MSGPACK_DEFINE (id_, address_, heartbeat_);
+  MSGPACK_DEFINE (id_, address_, heartbeat_)
 
   template <typename Writer>
   void Serialize(Writer& writer) const {
