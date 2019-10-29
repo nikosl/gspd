@@ -9,7 +9,7 @@
 #include "crow_all.h"
 #include "rapidjson/prettywriter.h"
 
-std::string serialize_peers_json(std::vector<gossip::Peer> alive, std::vector<gossip::Peer> suspects) {
+std::string serialize_peers_json(const std::vector<gossip::Peer>& alive, const std::vector<gossip::Peer>& suspects) {
   rapidjson::StringBuffer sb;
   rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(sb);
 
@@ -38,6 +38,7 @@ int main() {
   gossip::Config config{};
 
   if (!config.init()) {
+    spdlog::error("Configuration is missing!");
     return -1;
   }
 
