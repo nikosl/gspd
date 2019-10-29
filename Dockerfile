@@ -15,6 +15,12 @@ COPY . /usr/local/src/gspd
 WORKDIR /usr/local/src/gspd
 RUN git submodule update --recursive --init
 
+RUN rm -rf /usr/local/src/gspd/vendor/crow/build
+RUN mkdir -p /usr/local/src/gspd/vendor/crow/build
+WORKDIR /usr/local/src/gspd/vendor/crow/build
+RUN cmake ../
+RUN make -j4
+
 RUN rm -rf /usr/local/src/gspd/build
 RUN mkdir -p /usr/local/src/gspd/build
 WORKDIR /usr/local/src/gspd/build
